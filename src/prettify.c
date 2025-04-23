@@ -8,7 +8,7 @@ Fun Fact: There are 95 returns in this code. I know this and can live with it.
 // utility functions
 int next_token(parser_state *p) {
     if (p->read_idx >= p->max_input_len) {
-        fprintf(stderr, "JSON Input Buffer Overflow in %s at %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[ERROR] Buffer overflow: Input exceeds maximum length at position %d\n", p->read_idx);
         return -1;
     }
 
@@ -18,8 +18,8 @@ int next_token(parser_state *p) {
 
 int match(char x, parser_state *p) {
     if (x != p->current_token) {
-        fprintf(stderr, "JSON Token Mismatch in %s at %d:", __FILE__, __LINE__);
-        fprintf(stderr, "Expecting %c, Found %c\n", x, p->current_token);
+        fprintf(stderr, "[ERROR] Syntax error at position %d: Expected '%c', found '%c'\n", 
+                p->read_idx, x, p->current_token);
         return -1;
     }
     
@@ -29,7 +29,7 @@ int match(char x, parser_state *p) {
 
 int save_token(char x, parser_state *p) {
     if (p->write_idx >= p->max_output_len) {
-        fprintf(stderr, "JSON Output Buffer Overflow in %s at %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[ERROR] Buffer overflow: Output exceeds maximum length at position %d\n", p->write_idx);
         return -1;
     }
 
@@ -99,8 +99,8 @@ int value_number(parser_state *p) {
     }
 
     if (!isdigit(p->current_token)) {
-        fprintf(stderr, "JSON Token Mismatch in %s at %d:", __FILE__, __LINE__);
-        fprintf(stderr, "Expecting a digit, Found %c\n", p->current_token);
+        fprintf(stderr, "[ERROR] Invalid number format at position %d: Expected digit, found '%c'\n", 
+                p->read_idx, p->current_token);
         return -1;
     }
 
@@ -118,8 +118,8 @@ int value_number(parser_state *p) {
         if (save_curr_and_next_token(p))
             return -1;
         if (!isdigit(p->current_token)) {
-            fprintf(stderr, "JSON Token Mismatch in %s at %d:", __FILE__, __LINE__);
-            fprintf(stderr, "Expecting a digit, Found %c\n", p->current_token);
+            fprintf(stderr, "[ERROR] Invalid number format at position %d: Expected digit, found '%c'\n", 
+                    p->read_idx, p->current_token);
             return -1;
         }
         while (isdigit(p->current_token)) {
@@ -136,8 +136,8 @@ int value_number(parser_state *p) {
                 return -1;
         }
         if (!isdigit(p->current_token)) {
-            fprintf(stderr, "JSON Token Mismatch in %s at %d:", __FILE__, __LINE__);
-            fprintf(stderr, "Expecting a digit, Found %c\n", p->current_token);
+            fprintf(stderr, "[ERROR] Invalid number format at position %d: Expected digit, found '%c'\n", 
+                    p->read_idx, p->current_token);
             return -1;
         }
         while (isdigit(p->current_token)) {
@@ -186,7 +186,8 @@ int value_array(parser_state *p) {
 
     p->depth++;
     if (p->depth > p->max_input_depth) {
-        fprintf(stderr, "JSON Max Depth Reached in %s at %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[ERROR] Maximum nesting depth exceeded (%d) at position %d\n", 
+                p->max_input_depth, p->read_idx);
         return -1;
     }
     if (save_newline(p))
