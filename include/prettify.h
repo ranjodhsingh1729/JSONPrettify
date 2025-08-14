@@ -1,5 +1,5 @@
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef PRETTIFY_H
+#define PRETTIFY_H
 
 #include <stdio.h>
 #include <ctype.h>
@@ -15,7 +15,7 @@
 #define MAX_OUTPUT_SIZE 1000000
 
 
-typedef struct parser_state {
+typedef struct state {
     int depth;
     char *input;
     char *output;
@@ -25,24 +25,24 @@ typedef struct parser_state {
     int max_input_len;
     int max_output_len;
     int max_input_depth;
-} parser_state;
+} state;
 
 
 // prototypes
-int next_token(parser_state *p);
-int match(char x, parser_state *p);
-int save_token(char x, parser_state *p);
-int save_newline(parser_state *p);
-int skip_spaces(parser_state *p);
-int save_curr_and_next_token(parser_state *p);
+int next_token(state *p);
+int match(char x, state *p);
+int save_token(char x, state *p);
+int save_newline(state *p);
+int skip_spaces(state *p);
+int save_curr_and_next_token(state *p);
 
-int value_null(parser_state *p);
-int value_boolean(parser_state *p);
-int value_number(parser_state *p);
-int value_string(parser_state *p);
-int value_array(parser_state *p);
-int value_object(parser_state *p);
-int prettify_json(parser_state *p);
+int value_null(state *p);
+int value_boolean(state *p);
+int value_number(state *p);
+int value_string(state *p);
+int value_array(state *p);
+int value_object(state *p);
+int prettify_json(state *p);
 
 
-#endif // PARSER_H
+#endif // PRETTIFY_H

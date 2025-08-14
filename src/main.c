@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     }
     input_buf[MAX_INPUT_SIZE-1] = '\0';
 
-    parser_state p;
+    state p;
     p.depth = 0;
     p.read_idx = 0;
     p.write_idx = 0;
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "[ERROR] Failed to write to output file '%s': %s\n", argv[2], strerror(errno));
             goto close_fps;
         }
-        fprintf(stdout, "[SUCCESS] JSON prettified successfully: '%s' -> '%s'\n", argv[1], argv[2]);
+        // fprintf(stdout, "[SUCCESS] JSON prettified successfully: '%s' -> '%s'\n", argv[1], argv[2]);
     } else {
         fprintf(stderr, "[ERROR] JSON parsing incomplete - reached unexpected end of input\n");
         goto close_fps;

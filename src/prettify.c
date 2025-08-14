@@ -6,7 +6,7 @@ Fun Fact: There are 95 returns in this code. I know this and can live with it.
 
 
 // utility functions
-int next_token(parser_state *p) {
+int next_token(state *p) {
     if (p->read_idx >= p->max_input_len) {
         fprintf(stderr, "[ERROR] Buffer overflow: Input exceeds maximum length at position %d\n", p->read_idx);
         return -1;
@@ -16,7 +16,7 @@ int next_token(parser_state *p) {
     return 0;
 }
 
-int match(char x, parser_state *p) {
+int match(char x, state *p) {
     if (x != p->current_token) {
         fprintf(stderr, "[ERROR] Syntax error at position %d: Expected '%c', found '%c'\n", 
                 p->read_idx, x, p->current_token);
@@ -27,7 +27,7 @@ int match(char x, parser_state *p) {
     return 0;
 }
 
-int save_token(char x, parser_state *p) {
+int save_token(char x, state *p) {
     if (p->write_idx >= p->max_output_len) {
         fprintf(stderr, "[ERROR] Buffer overflow: Output exceeds maximum length at position %d\n", p->write_idx);
         return -1;
@@ -41,7 +41,7 @@ int save_token(char x, parser_state *p) {
     return 0;
 }
 
-int skip_spaces(parser_state *p) {
+int skip_spaces(state *p) {
     while (isspace(p->current_token))
         if (next_token(p))
             return -1;
@@ -49,7 +49,7 @@ int skip_spaces(parser_state *p) {
     return 0;
 }
 
-int save_newline(parser_state *p) {
+int save_newline(state *p) {
     if (save_token('\n', p))
         return -1;
     for (int i = 0; i < p->depth; i++)
@@ -59,7 +59,7 @@ int save_newline(parser_state *p) {
     return 0;
 }
 
-int save_curr_and_next_token(parser_state *p) {
+int save_curr_and_next_token(state *p) {
     if (save_token(0, p))
         return -1;
     if (next_token(p))
@@ -70,7 +70,7 @@ int save_curr_and_next_token(parser_state *p) {
 
 
 // primitive types
-int value_null(parser_state *p) {
+int value_null(state *p) {
     char *val = "null";
     for (int i = 0; val[i]; i++) {
         if (save_token(0, p))
@@ -81,7 +81,7 @@ int value_null(parser_state *p) {
     return 0;
 }
 
-int value_boolean(parser_state *p) {
+int value_boolean(state *p) {
     char *val = p->current_token == 't' ? "true" : "false";
     for (int i = 0; val[i]; i++) {
         if (save_token(0, p))
@@ -92,7 +92,7 @@ int value_boolean(parser_state *p) {
     return 0;
 }
 
-int value_number(parser_state *p) {
+int value_number(state *p) {
     if (p->current_token == '-') {
         if (save_curr_and_next_token(p))
             return -1;
@@ -154,7 +154,7 @@ int value_number(parser_state *p) {
     return 0;
 }
 
-int value_string(parser_state *p) {
+int value_string(state *p) {
     if (save_token(0, p))
         return -1;
     if (match('"', p))
@@ -178,7 +178,7 @@ int value_string(parser_state *p) {
 }
 
 // structured types
-int value_array(parser_state *p) {
+int value_array(state *p) {
     if (save_token(0, p))
         return -1;
     if (match('[', p))
@@ -229,7 +229,7 @@ int value_array(parser_state *p) {
     return 0;
 }
 
-int value_object(parser_state *p) {
+int value_object(state *p) {
     if (save_token(0, p))
         return -1;
     if (match('{', p))
@@ -303,7 +303,7 @@ int value_object(parser_state *p) {
     return 0;
 }
 
-int prettify_json(parser_state *p) {
+int prettify_json(state *p) {
     if (skip_spaces(p))
         return -1;
 
